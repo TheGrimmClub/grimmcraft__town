@@ -1,0 +1,25 @@
+version: "3"
+
+env:
+  PYTHONPATH: packages/filesystem/src:apps/guard/src:apps/scout/src:apps/blacksmith/src:apps/town/src
+
+tasks:
+  info:
+    desc: "Quick one-line world summary"
+    cmds:
+      - uv run scout info {{.CLI_ARGS}}
+
+  scan:
+    desc: "Full scan: world info + block-entity counts + command blocks"
+    cmds:
+      - uv run scout scan {{.CLI_ARGS}}
+
+  commands:
+    desc: "List every command block and its command"
+    cmds:
+      - uv run scout commands {{.CLI_ARGS}}
+
+  report:
+    desc: "Write a Markdown report of the world"
+    cmds:
+      - uv run scout report {{.CLI_ARGS}}

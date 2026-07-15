@@ -1,0 +1,14 @@
+version: "3"
+
+env:
+  PYTHONPATH: packages/filesystem/src:apps/guard/src:apps/scout/src:apps/blacksmith/src:apps/town/src
+
+tasks:
+  list:
+    desc: "List datapacks in the world (stub — full blacksmith spec comes later)"
+    cmds:
+      - uv run blacksmith list {{.CLI_ARGS}}
+  check:
+    desc: "Check all datapacks in the world (stub — full blacksmith spec comes later)"
+    cmds:
+      - uv run blacksmith check {{.CLI_ARGS}}

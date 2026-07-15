@@ -1,0 +1,37 @@
+[project]
+name = "grimmcraft-town"
+version = "2026.1.0"
+description = "GrimmCraft Town — a Minecraft learners' toolkit monorepo"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "filesystem",
+    "guard",
+    "scout",
+    "blacksmith",
+    "town",
+]
+
+# The repository root is a *virtual* workspace: it is not built or published,
+# it only ties the member packages together so `uv sync` installs them all.
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pyftpdlib>=1.5",  # local FTP server for exercising guard's download path
+]
+
+[tool.pytest.ini_options]
+testpaths = ["packages/filesystem/tests", "apps/scout/tests"]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/*", "apps/*"]
+
+[tool.uv.sources]
+filesystem = { workspace = true }
+guard = { workspace = true }
+scout = { workspace = true }
+blacksmith = { workspace = true }
+town = { workspace = true }

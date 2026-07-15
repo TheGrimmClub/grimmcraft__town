@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+dist/
+build/
+*.egg-info/
+
+# uv
+.uv/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Claude Code (personal, per-developer)
+.claude/settings.local.json
+
+# macOS
+.DS_Store
+
+# GrimmCraft Town working folders (local data, not source)
+/_input/
+/_backups/
+/_restore/
+world_*.zip

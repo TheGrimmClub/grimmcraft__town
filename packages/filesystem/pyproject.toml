@@ -1,0 +1,15 @@
+[project]
+name = "filesystem"
+version = "2026.1.0"
+description = "The one interface to os, pathlib, zip, ftp/http and Minecraft NBT for GrimmCraft Town"
+requires-python = ">=3.11"
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/filesystem"]

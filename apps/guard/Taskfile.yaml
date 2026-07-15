@@ -1,0 +1,41 @@
+version: "3"
+
+# See the root Taskfile for why PYTHONPATH is set here (uv + CPython 3.13
+# hidden-.pth workaround). Tasks run from the repo root.
+env:
+  PYTHONPATH: packages/filesystem/src:apps/guard/src:apps/scout/src:apps/blacksmith/src:apps/town/src
+
+# Guard's actions. Every task forwards extra CLI args after `--`, so town can
+# run them with no args (config.yaml defaults) and humans can override, e.g.:
+#   task guard:backup -- --world ./_input --out ./_backups
+
+tasks:
+  backup:
+    desc: "Back up the world into a {name}__mc{version}__{date}.zip archive"
+    cmds:
+      - uv run guard backup {{.CLI_ARGS}}
+
+  restore:
+    desc: "Restore a world archive to the configured location"
+    cmds:
+      - uv run guard restore {{.CLI_ARGS}}
+
+  download:
+    desc: "Download a world from an FTP or HTTP(S) source"
+    cmds:
+      - uv run guard download {{.CLI_ARGS}}
+
+  info:
+    desc: "Show the world's name, version and datapacks"
+    cmds:
+      - uv run guard info {{.CLI_ARGS}}
+
+  docs:
+    desc: "(Re)generate the world's README.md"
+    cmds:
+      - uv run guard docs {{.CLI_ARGS}}
+
+  aternos:
+      desc: "get aternos files form the agecraftcoding server. Uses `~/.env` to login"
+      cmds:
+          - uv run --python 3.11 src/guard/aternos.py
