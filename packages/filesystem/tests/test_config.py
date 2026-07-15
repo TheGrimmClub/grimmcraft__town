@@ -26,3 +26,33 @@ def test_find_config_walks_up(tmp_path: Path):
     deep = tmp_path / "a" / "b"
     deep.mkdir(parents=True)
     assert config.find_config(deep) == tmp_path / "config.yaml"
+
+
+def test_save_backs_up_previous_version(tmp_path: Path):
+    path = tmp_path / "config.yaml"
+    config.save_config({"town": {"port": 8080}}, path)
+    # first save: nothing existed before, so no backup yet
+    assert not config.backup_path(path).is_file()
+
+    # second save: the previous version is preserved as .bak
+    config.save_config({"town": {"port": 9000}}, path)
+    backup = config.backup_path(path)
+    assert backup.is_file()
+    assert config.load_config(backup) == {"town": {"port": 8080}}
+    assert config.load_config(path) == {"town": {"port": 9000}}
+
+
+def test_restore_config_round_trip(tmp_path: Path):
+    path = tmp_path / "config.yaml"
+    config.save_config({"town": {"port": 8080}}, path)
+    config.save_config({"town": {"port": 9000}}, path)
+
+    restored = config.restore_config(path)
+    assert restored == path
+    assert config.load_config(path) == {"town": {"port": 8080}}
+
+
+def test_restore_config_without_backup(tmp_path: Path):
+    path = tmp_path / "config.yaml"
+    config.save_config({"town": {}}, path)  # no prior version -> no backup
+    assert config.restore_config(path) is None

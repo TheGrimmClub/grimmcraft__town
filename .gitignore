@@ -25,3 +25,6 @@ build/
 /_backups/
 /_restore/
 world_*.zip
+
+# config.yaml backup written by save_config (local, for restoring)
+config.yaml.bak

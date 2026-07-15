@@ -14,6 +14,7 @@ import yaml
 
 
 CONFIG_NAME = "config.yaml"
+BACKUP_SUFFIX = ".bak"
 
 DEFAULT_CONFIG: dict[str, Any] = {
     "guard": {
@@ -50,11 +51,40 @@ def load_config(path: path_like_optional = None) -> dict:
     return data
 
 
-def save_config(data: dict, path: path_like) -> SystemPath:
-    """Write ``data`` back to ``path`` as tidy YAML."""
+def backup_path(path: path_like) -> SystemPath:
+    """The sibling path where :func:`save_config` keeps the previous version.
+
+    e.g. ``config.yaml`` -> ``config.yaml.bak``.
+    """
     dest = as_path(path)
+    return dest.with_name(dest.name + BACKUP_SUFFIX)
+
+
+def save_config(data: dict, path: path_like) -> SystemPath:
+    """Write ``data`` back to ``path`` as tidy YAML.
+
+    Before overwriting, the current file (if any) is copied to a ``.bak``
+    backup so the last version can always be restored — see
+    :func:`restore_config`.
+    """
+    dest = as_path(path)
+    if dest.is_file():
+        backup_path(dest).write_bytes(dest.read_bytes())
     dest.write_text(
         yaml.safe_dump(data, sort_keys=False, allow_unicode=True),
         encoding="utf-8",
     )
+    return dest
+
+
+def restore_config(path: path_like) -> SystemPathOptional:
+    """Restore ``path`` from the ``.bak`` backup left by :func:`save_config`.
+
+    Returns the restored path, or ``None`` if there is no backup yet.
+    """
+    dest = as_path(path)
+    backup = backup_path(dest)
+    if not backup.is_file():
+        return None
+    dest.write_bytes(backup.read_bytes())
     return dest
