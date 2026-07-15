@@ -1,7 +1,8 @@
 """Blacksmith — forges functions inside datapacks.
 
-Stub for now: the full specification arrives in a later stage. It provides a
-``list`` command so ``town`` has a button to bind to.
+``list`` reports the datapacks in a world; ``forge fireworks`` stamps out a
+whole fireworks datapack (rocket + timed volley functions, load/tick wiring and
+tags) from a small colour × shape palette. See :mod:`blacksmith.core`.
 """
 
 __version__ = "2026.1.0"

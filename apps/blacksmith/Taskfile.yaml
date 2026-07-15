@@ -14,10 +14,15 @@ tasks:
       cmds:
         - uv run blacksmith upgrade {{.CLI_ARGS}}
 
-  list: #TODO: fully implement `blacksmith list`
+  list:
     desc: "List datapacks in the world "
     cmds:
       - uv run blacksmith list {{.CLI_ARGS}}
+
+  forge:
+    desc: "Forge a datapack's functions (e.g. `task forge -- fireworks`)"
+    cmds:
+      - uv run blacksmith forge {{.CLI_ARGS}}
 
   check: #TODO: implement `blacksmith check`
     desc: "Check all datapacks in the world (stub — full blacksmith spec comes later)"

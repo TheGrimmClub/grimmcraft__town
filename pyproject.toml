@@ -21,7 +21,7 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["packages/filesystem/tests", "apps/scout/tests"]
+testpaths = ["packages/filesystem/tests", "apps/scout/tests", "apps/blacksmith/tests"]
 
 [tool.uv]
 package = false
