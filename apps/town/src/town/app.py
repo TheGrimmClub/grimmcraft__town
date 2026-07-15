@@ -40,14 +40,18 @@ def _run_ui() -> None:
             with ui.row():
                 with ui.card():
                     # open the folder
-                    ui.label(str(ROOT)).classes("text-l")
+                    ui.link(str(ROOT), str(ROOT)).classes("text-l")
 
                 with ui.card():
-                    ui.link('GrimmCraft TownHall', 'https://thegrimmclub.github.io/grimmoire/', new_tab=True)
+                    ui.link('GrimmCraft Town on GitHub', 'https://github.com/TheGrimmClub/grimmcraft__town', new_tab=True)
                 with ui.card():
                     ui.link('Grimmoire', 'https://thegrimmclub.github.io/grimmoire/', new_tab=True)
                 with ui.card():
+                        ui.link('Aternos Coding', 'https://aternos.org/worlds/', new_tab=True)
+                with ui.card():
                         ui.link('NiceGUI', 'https://nicegui.io/documentation', new_tab=True)
+
+
 
     # Shared log, shown under the tabs.
     log = ui.log(max_lines=500).classes("w-full h-64 bg-black text-green-400 font-mono text-xs")

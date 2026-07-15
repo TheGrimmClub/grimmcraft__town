@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from filesystem.world import WorldInfo
+from minecraft.world import WorldInfo
 from scout import core, report
 
 FAKE_ENTITIES = [
@@ -22,7 +22,7 @@ FAKE_ENTITIES = [
 def fake_world(tmp_path: Path, monkeypatch) -> Path:
     world = tmp_path / "world"
     world.mkdir()
-    (world / "level.dat").write_bytes(b"")  # locate_world only checks existence
+    (world / "level.dat").write_bytes(b"")  # locate_directory only checks existence
     monkeypatch.setattr(core, "read_world_info",
                         lambda w: WorldInfo(Path(w), "world", "1.21.11", 42, []))
     monkeypatch.setattr(core.region, "iter_block_entities", lambda w: iter(FAKE_ENTITIES))

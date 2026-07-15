@@ -7,9 +7,8 @@ import json
 import sys
 from pathlib import Path
 
-from filesystem import paths
 from filesystem.config import load_config
-from filesystem.world import read_world_info
+from minecraft.world import locate_world, read_world_info
 
 from . import core, report
 
@@ -52,7 +51,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _resolve_world(where: str) -> Path:
-    world = paths.locate_world(where)
+    world = locate_world(where)
     if world is None:
         raise SystemExit(f"scout: no world (level.dat) found under {where}")
     return world

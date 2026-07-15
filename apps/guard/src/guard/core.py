@@ -9,7 +9,7 @@ from pathlib import Path
 
 from filesystem import paths, transfer
 from filesystem.archive import Archive
-from filesystem.world import WorldInfo, read_world_info
+from minecraft.world import WorldInfo, read_world_info
 
 from .docs import write_world_readme
 
@@ -42,7 +42,7 @@ def backup(
     when: date | None = None,
 ) -> BackupResult:
     """Locate a world under ``world_dir``, document it and zip it into ``out_dir``."""
-    world = paths.locate_world(world_dir)
+    world = paths.locate_directory(world_dir)
     if world is None:
         raise FileNotFoundError(f"No Minecraft world (level.dat) found under {world_dir}")
 

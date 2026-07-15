@@ -5,82 +5,84 @@ a single :func:`fetch` that reads a small dict so a beginner can describe a
 source in YAML instead of remembering library APIs.
 """
 
-from __future__ import annotations
+# [ ] Includes internal
+from .core import path_like, SystemPath
+from .paths import as_path, ensure_dir
 
+# [ ] Includes standard
 import ftplib
 import shutil
 import urllib.request
-from pathlib import Path
 from urllib.parse import urlparse
 
-from .paths import as_path, ensure_dir
+
+def _prepare(path: path_like) -> SystemPath:
+    """Prepare a path by converting it to a :class:`SystemPath` and ensuring its parent directory exists."""
+    path = as_path(path)
+    ensure_dir(path.parent)
+    return path
 
 
-def _prepare(dest: str | Path) -> Path:
-    dest = as_path(dest)
-    ensure_dir(dest.parent)
-    return dest
-
-
-def http_download(url: str, dest: str | Path) -> Path:
-    """Download an ``http://`` or ``https://`` URL to ``dest``."""
-    dest = _prepare(dest)
-    request = urllib.request.Request(url, headers={"User-Agent": "grimm-guard"})
-    with urllib.request.urlopen(request) as response, open(dest, "wb") as out:
+def http_download(from_url: str, to_path: path_like) -> SystemPath:
+    """Download an ``http://`` or ``https://`` URL to ``to_path``."""
+    to_path = _prepare(to_path)
+    request = urllib.request.Request(from_url, headers={"User-Agent": "grimm-guard"})
+    with urllib.request.urlopen(request) as response, open(to_path, "wb") as out:
         shutil.copyfileobj(response, out)
-    return dest
+    return to_path
 
 
 def ftp_download(
     host: str,
     remote_path: str,
-    dest: str | Path,
+    to_path: path_like,
     *,
     user: str = "anonymous",
     password: str = "",
     port: int = 21,
-) -> Path:
-    """Download a single file from an FTP server to ``dest``."""
-    dest = _prepare(dest)
+) -> SystemPath:
+    """Download a single file from an FTP server to ``to_path``."""
+    to_path = _prepare(to_path)
     with ftplib.FTP() as ftp:
         ftp.connect(host, port)
         ftp.login(user, password)
-        with open(dest, "wb") as out:
+        with open(to_path, "wb") as out:
             ftp.retrbinary(f"RETR {remote_path}", out.write)
-    return dest
+    return to_path
 
 
-def _ftp_from_url(url: str, dest: str | Path) -> Path:
-    parts = urlparse(url)
+def _ftp_from_url(from_url: str, to_path: path_like) -> SystemPath:
+    """Download a file from an FTP URL to ``to_path``."""
+    parts = urlparse(from_url)
     if not parts.hostname:
-        raise ValueError(f"FTP url has no host: {url}")
+        raise ValueError(f"FTP url has no host: {from_url}")
     return ftp_download(
         parts.hostname,
         parts.path,
-        dest,
+        to_path,
         user=parts.username or "anonymous",
         password=parts.password or "",
         port=parts.port or 21,
     )
 
 
-def download(url: str, dest: str | Path) -> Path:
-    """Download any supported URL (``http``, ``https`` or ``ftp``) to ``dest``."""
-    scheme = urlparse(url).scheme.lower()
+def download(from_url: str, to_path: path_like) -> SystemPath:
+    """Download any supported URL (``http``, ``https`` or ``ftp``) to ``to_path``."""
+    scheme = urlparse(from_url).scheme.lower()
     if scheme in ("http", "https"):
-        return http_download(url, dest)
+        return http_download(from_url, to_path)
     if scheme == "ftp":
-        return _ftp_from_url(url, dest)
-    raise ValueError(f"Don't know how to download a '{scheme}' url: {url}")
+        return _ftp_from_url(from_url, to_path)
+    raise ValueError(f"Don't know how to download a '{scheme}' url: {from_url}")
 
 
 def suggest_filename(url: str, fallback: str = "download.bin") -> str:
     """Guess a sensible filename from the tail of a URL."""
-    name = Path(urlparse(url).path).name
+    name = SystemPath(urlparse(url).path).name
     return name or fallback
 
 
-def fetch(source: dict, dest: str | Path) -> Path:
+def fetch(source: dict, to_path: path_like) -> SystemPath:
     """Download from a *source description* (a small dict, e.g. from YAML).
 
     Supported shapes::
@@ -94,19 +96,21 @@ def fetch(source: dict, dest: str | Path) -> Path:
     url = source.get("url")
     kind = (source.get("kind") or (urlparse(url).scheme if url else "")).lower()
 
-    if kind in ("http", "https"):
-        if not url:
-            raise ValueError("http source needs a 'url'")
-        return http_download(url, dest)
-    if kind == "ftp":
-        if url:
-            return _ftp_from_url(url, dest)
-        return ftp_download(
-            source["host"],
-            source["path"],
-            dest,
-            user=source.get("user", "anonymous"),
-            password=source.get("password", ""),
-            port=int(source.get("port", 21)),
-        )
-    raise ValueError(f"Unknown source kind: {kind!r} (use 'http', 'https' or 'ftp')")
+    match kind:
+        case "http" | "https":
+            if not url:
+                raise ValueError("http source needs a 'url'")
+            return http_download(url, to_path)
+        case "ftp":
+            if url:
+                return _ftp_from_url(url, to_path)
+            return ftp_download(
+                source["host"],
+                source["path"],
+                to_path,
+                user=source.get("user", "anonymous"),
+                password=source.get("password", ""),
+                port=int(source.get("port", 21)),
+            )
+        case _:
+            raise ValueError(f"Unknown source kind: {kind!r} (use 'http', 'https' or 'ftp')")

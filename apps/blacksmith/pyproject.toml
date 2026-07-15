@@ -5,6 +5,7 @@ description = "Blacksmith — build functions in datapacks (stub; spec later)"
 requires-python = ">=3.11"
 dependencies = [
     "filesystem",
+    "minecraft",
 ]
 
 [project.scripts]
@@ -18,4 +19,5 @@ build-backend = "hatchling.build"
 packages = ["src/blacksmith"]
 
 [tool.uv.sources]
+minecraft = { workspace = true }
 filesystem = { workspace = true }

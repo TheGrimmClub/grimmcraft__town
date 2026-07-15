@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-from filesystem.world import WorldInfo
+from minecraft.world import WorldInfo
 
 
 def render_readme(info: WorldInfo, *, when: date | None = None) -> str:

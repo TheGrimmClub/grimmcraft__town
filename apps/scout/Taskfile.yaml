@@ -1,7 +1,7 @@
 version: "3"
 
 env:
-  PYTHONPATH: packages/filesystem/src:apps/guard/src:apps/scout/src:apps/blacksmith/src:apps/town/src
+  PYTHONPATH: packages/filesystem/src:packages/minecraft/src:apps/guard/src:apps/scout/src:apps/blacksmith/src:apps/town/src
 
 tasks:
   info:

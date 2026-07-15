@@ -1,7 +1,7 @@
 [project]
 name = "filesystem"
-version = "2026.1.0"
-description = "The one interface to os, pathlib, zip, ftp/http and Minecraft NBT for GrimmCraft Town"
+version = "2026.2.0"
+description = "The one interface to os, pathlib, zip, ftp/http Grimm"
 requires-python = ">=3.11"
 dependencies = [
     "pyyaml>=6.0",

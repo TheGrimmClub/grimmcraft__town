@@ -1,22 +1,14 @@
 """Shared fixtures for the filesystem test suite."""
 
-from __future__ import annotations
-
-from pathlib import Path
+from filesystem.core import SystemPath
 
 import pytest
 
-DATA = Path(__file__).parent / "data"
+DATA = SystemPath(__file__).parent / "data"
 
 
 @pytest.fixture
-def sample_world() -> Path:
-    """A real (tiny) Minecraft world: level.dat + one datapack."""
-    return DATA / "world"
-
-
-@pytest.fixture
-def tmp_world(tmp_path: Path) -> Path:
+def tmp_world(tmp_path: SystemPath) -> SystemPath:
     """A throwaway world folder with a couple of files and a nested datapack."""
     world = tmp_path / "world"
     (world / "region").mkdir(parents=True)

@@ -5,28 +5,27 @@ Instead of importing ``os``, ``pathlib``, ``zipfile``, ``ftplib`` and
 It keeps the "how do I touch files, archives and remote servers" knowledge
 in one small, well-documented place.
 
+Minecraft-specific reading (NBT, regions, world info) lives in the sibling
+``minecraft`` package, which builds on this one.
+
 Quick tour::
 
     from filesystem import paths, archive, transfer, config
-    from filesystem.world import read_world_info
 
-    world = paths.locate_world("./_input")      # find the `world` folder
-    info = read_world_info(world)               # name + version + datapacks
-    archive.create_archive(world, "out.zip")    # zip it (skips macOS junk)
+    world = paths.locate_directory("./_input")   # find a folder with level.dat
+    archive.create_archive(world, "out.zip")     # zip it (skips macOS junk)
 """
 
-from . import archive, config, nbt, paths, transfer, world
-from .world import WorldInfo, read_world_info
+from . import core, archive, config, paths, transfer
+from .core import SystemPath
 
 __all__ = [
+    "core",
     "archive",
     "config",
-    "nbt",
     "paths",
+    "SystemPath",
     "transfer",
-    "world",
-    "WorldInfo",
-    "read_world_info",
 ]
 
 __version__ = "2026.1.0"

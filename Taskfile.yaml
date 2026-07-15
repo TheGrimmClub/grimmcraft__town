@@ -10,7 +10,7 @@ version: "3"
 # the workspace packages would otherwise not import. Tasks run from the repo
 # root, so the relative paths resolve correctly.
 env:
-  PYTHONPATH: packages/filesystem/src:apps/guard/src:apps/scout/src:apps/blacksmith/src:apps/town/src
+  PYTHONPATH: packages/filesystem/src:packages/minecraft/src:apps/guard/src:apps/scout/src:apps/blacksmith/src:apps/town/src
 
 includes:
   guard:
@@ -24,6 +24,12 @@ includes:
     dir: .
   town:
     taskfile: ./apps/town/Taskfile.yaml
+    dir: .
+  carpenter:
+    taskfile: ./apps/carpenter/Taskfile.yaml
+    dir: .
+  alchemist:
+    taskfile: ./apps/alchemist/Taskfile.yaml
     dir: .
 
 tasks:

@@ -11,7 +11,7 @@ import argparse
 import sys
 
 from filesystem.config import load_config
-from filesystem.world import read_world_info
+from minecraft.world import read_world_info
 
 from . import core
 from .docs import write_world_readme
@@ -73,7 +73,7 @@ def build_parser(cfg: dict | None = None) -> argparse.ArgumentParser:
 def _resolve_world(where: str):
     from filesystem import paths
 
-    world = paths.locate_world(where)
+    world = paths.locate_directory(where)
     if world is None:
         raise SystemExit(f"guard: no world (level.dat) found under {where}")
     return world

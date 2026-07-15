@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
     "dotenv>=0.9.9",
     "filesystem",
+    "minecraft",
     "lxml>=6.1.1",
     "python-aternos>=3.0.0",
 ]
@@ -21,4 +22,5 @@ build-backend = "hatchling.build"
 packages = ["src/guard"]
 
 [tool.uv.sources]
+minecraft = { workspace = true }
 filesystem = { workspace = true }

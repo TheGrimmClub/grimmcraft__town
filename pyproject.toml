@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "filesystem",
+    "minecraft",
     "guard",
     "scout",
     "blacksmith",
@@ -21,16 +22,18 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["packages/filesystem/tests", "apps/scout/tests", "apps/blacksmith/tests"]
+testpaths = ["packages/filesystem/tests", "packages/minecraft/tests", "apps/scout/tests", "apps/blacksmith/tests"]
 
 [tool.uv]
 package = false
 
 [tool.uv.workspace]
 members = ["packages/*", "apps/*"]
+exclude = ["apps/carpenter"]  # carpenter is a Go program, not a Python package
 
 [tool.uv.sources]
 filesystem = { workspace = true }
+minecraft = { workspace = true }
 guard = { workspace = true }
 scout = { workspace = true }
 blacksmith = { workspace = true }

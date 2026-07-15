@@ -1,12 +1,9 @@
-# GrimmCraft Town — shared settings.
-# `town` edits this file through its UI; the CLI tools read it for defaults.
-
 guard:
-  world_dir: ./_input        # where guard looks for a `world` folder
-  archive_dir: ./_backups    # where backups are written
-  restore_dir: ./_restore    # where archives are restored
-  write_docs: true           # write a README.md into the world before backing up
-  sources:                   # named download sources for `guard download <name>`
+  world_dir: ./_input
+  archive_dir: ./_backups
+  restore_dir: ./_restore
+  write_docs: true
+  sources:
     example-http:
       kind: http
       url: https://example.com/world.zip
@@ -15,13 +12,13 @@ guard:
       host: ftp.example.com
       path: /worlds/world.zip
       user: anonymous
-      password: ""
+      password: ''
       port: 21
-
 scout: {}
-
 blacksmith: {}
-
 town:
   host: 127.0.0.1
-  port: 8080
+  port: 8081.0
+townhall: {}
+alchemist: {}
+carpenter: {}

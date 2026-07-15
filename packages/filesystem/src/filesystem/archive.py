@@ -1,27 +1,13 @@
 """Zip archives — create and restore, without the macOS ``__MACOSX`` junk."""
 
-from __future__ import annotations
-
-import zipfile
-from datetime import datetime
-from pathlib import Path
-
+# [ ] Includes internal
+from .core import yes, no, get_iso_date, path_like, StringChecker, SystemPath, ZipFile, ZIP_DEFLATED
 from .paths import as_path, ensure_dir, is_junk
 
-yes = True
-no = False
-
-class StringChecker:
-    """A simple string checker for archive names.
-    TODO: create tests
-    """
-    def __init__(self):
-        self.special_chars : set[str] = set("!@#$%^&*()_+{}[]|\\:;\"'<>,.?/~`")
-
-    def space_cleaner(self, name: str) -> str:
-        return str(name.replace(" ", "__").replace('-', '_'))
 
 
+# [ ] Main Class
+#
 class Archive:
     """A simple accessor class for archives.
     TODO: create tests
@@ -32,7 +18,7 @@ class Archive:
             name = self.valid_name(name)
         self.name : str = name
 
-    def valid_name(self, name : str):
+    def valid_name(self, name : str) -> str:
         # empty name
         if not name:
             name = 'archive'
@@ -49,25 +35,25 @@ class Archive:
         return name
 
     def exists(self) -> bool:
-        return Path(self.name).exists()
+        return SystemPath(self.name).exists()
 
-    def list(self, zip_path: str | Path) -> list[str]:
-        with zipfile.ZipFile(zip_path) as zf:
+    def list(self, zip_path: path_like) -> list[str]:
+        with ZipFile(zip_path) as zf:
             return [name for name in zf.namelist() if not is_junk(name)]
 
-    def append_date(self, info : str | Path ):
-        if type(info) is Path:
+    def append_date(self, info : path_like ):
+        if type(info) is SystemPath:
             active : str = info.name
         else:
             active = str(info)
 
-        active = active + f"__{datetime.now().strftime('%Y%m%d')}"
+        active = active + f"__{get_iso_date()}"
         return active
 
     def create(self,
-               from_path: str | Path,
-               to_path: str | Path,
-               do_date : bool = yes) -> Path:
+               from_path: path_like,
+               to_path: path_like,
+               do_date : bool = yes) -> SystemPath:
         """Zip the folder ``from_path`` into ``to_path``.
         The name is already given by ``self.name``.
 
@@ -85,11 +71,11 @@ class Archive:
 
         archive_name = self.append_date(self.name) if do_date else self.name
         full_path = destination_path / archive_name
-        with zipfile.ZipFile(full_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        with ZipFile(full_path, "w", ZIP_DEFLATED) as zf:
             for item in sorted(source_path.rglob("*")):
                 if is_junk(item):
                     continue
-                rel = Path(filter_name) / item.relative_to(source_path)
+                rel = SystemPath(filter_name) / item.relative_to(source_path)
                 if item.is_dir():
                     # store an explicit directory entry so empty folders survive
                     zf.writestr(str(rel) + "/", "")
@@ -100,31 +86,35 @@ class Archive:
 
 
     def extract(self,
-                zip_path: str | Path,
-                to_path: str | Path) -> Path:
-        """Extract ``zip_path`` into ``destination_path_dir`` (created if needed).
-
-        Junk entries are skipped. Returns the destination_pathination folder.
+                zip_path: path_like,
+                to_path: path_like,
+                do_overwrite: bool = no) -> SystemPath:
+        """Extract ``zip_path`` into ``to_path`` (created if needed).
+        - `do_overwrite`: if `yes`, existing files will be overwritten.
+        Junk entries are skipped. Returns the destination folder.
         """
         source_path = as_path(zip_path)
         if not source_path.is_file():
             raise FileNotFoundError(f"Archive not found: {source_path}")
 
         destination_path = ensure_dir(to_path)
-        with zipfile.ZipFile(source_path) as zf:
+        with ZipFile(source_path) as zf:
             for member in zf.namelist():
                 if is_junk(member):
                     continue
                 _ = zf.extract(member, to_path)
 
+
         return destination_path
 
+# [ ] Function interface
+
 def create_archive(
-    from_path: str | Path,
-    to_path: str | Path,
+    from_path: path_like,
+    to_path: path_like,
     *,
     archive_name: str
-) -> Path:
+) -> SystemPath:
     """Zip the folder ``from_path`` into ``to_path``.
 
     ``archive_name`` is the fist_folder-level folder name stored *inside* the zip. For a
@@ -137,12 +127,12 @@ def create_archive(
     return result_path
 
 
-def extract_archive(zip_path: str | Path, to_path: str | Path) -> Path:
+def extract_archive(zip_path: path_like, to_path: path_like) -> SystemPath:
     """Extract ``zip_path`` into ``destination_path_dir`` (created if needed).
 
     Junk entries are skipped. Returns the destination_pathination folder.
     """
-    if type(zip_path) is Path:
+    if type(zip_path) is SystemPath:
         zip_path = str(zip_path.name)
     else:
         zip_path = str(zip_path)
@@ -153,9 +143,9 @@ def extract_archive(zip_path: str | Path, to_path: str | Path) -> Path:
     return result_path
 
 
-def list_archive(zip_path: str | Path) -> list[str]:
+def list_archive(zip_path: path_like) -> list[str]:
     """Return the (non-junk) entry names inside ``zip_path``."""
-    if type(zip_path) is Path:
+    if type(zip_path) is SystemPath:
         zip_path = str(zip_path.name)
     else:
         zip_path = str(zip_path)

@@ -5,6 +5,7 @@ description = "Scout — read world data, especially command blocks (stub; spec 
 requires-python = ">=3.11"
 dependencies = [
     "filesystem",
+    "minecraft",
 ]
 
 [project.scripts]
@@ -18,4 +19,5 @@ build-backend = "hatchling.build"
 packages = ["src/scout"]
 
 [tool.uv.sources]
+minecraft = { workspace = true }
 filesystem = { workspace = true }

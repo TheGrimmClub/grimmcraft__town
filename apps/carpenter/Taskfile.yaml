@@ -1,0 +1,38 @@
+version: "3"
+
+# carpenter is a Go program (Bubble Tea + Lip Gloss). Its tasks run from the
+# module directory (apps/carpenter); the scaffolder itself walks up to the repo
+# root (config.yaml) to find where apps/ lives.
+
+tasks:
+  new:
+    desc: "Run the interactive 'new Python app' questionnaire"
+    dir: apps/carpenter
+    interactive: true
+    cmds:
+      - go run . {{.CLI_ARGS}}
+
+  build:
+    internal: yes
+    desc: "Compile the carpenter binary"
+    cmds:
+      - go build -o carpenter .
+
+  test:
+    internal: yes
+    desc: "Run carpenter's Go tests"
+    cmds:
+      - go test ./...
+
+  tidy:
+    internal: yes
+    desc: "Tidy the Go module (go.mod / go.sum)"
+    cmds:
+      - go mod tidy
+
+  update:
+    desc: "Update the Go module (go.mod / go.sum)"
+    cmds:
+      - task: tidy
+      - task: test
+      - task: build

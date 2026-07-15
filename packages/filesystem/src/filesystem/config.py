@@ -5,14 +5,13 @@ read it for their defaults. Keeping it in one place means "the data" lives in
 exactly one obvious spot.
 """
 
-from __future__ import annotations
+# [ ] Includes internal
+from .core import Any, path_like, SystemPath, SystemPathOptional, path_like_optional
+from .paths import as_path
 
-from pathlib import Path
-from typing import Any
-
+# [ ] Includes external
 import yaml
 
-from .paths import as_path
 
 CONFIG_NAME = "config.yaml"
 
@@ -30,9 +29,9 @@ DEFAULT_CONFIG: dict[str, Any] = {
 }
 
 
-def find_config(start: str | Path | None = None) -> Path | None:
+def find_config(start: path_like_optional = None) -> SystemPathOptional:
     """Walk up from ``start`` (or cwd) looking for a ``config.yaml``."""
-    here = as_path(start or Path.cwd()).resolve()
+    here = as_path(start or SystemPath.cwd()).resolve()
     for folder in (here, *here.parents):
         candidate = folder / CONFIG_NAME
         if candidate.is_file():
@@ -40,18 +39,18 @@ def find_config(start: str | Path | None = None) -> Path | None:
     return None
 
 
-def load_config(path: str | Path | None = None) -> dict:
+def load_config(path: path_like_optional = None) -> dict:
     """Load the config, falling back to :data:`DEFAULT_CONFIG` when absent."""
     found = as_path(path) if path else find_config()
-    if not found or not Path(found).is_file():
+    if not found or not SystemPath(found).is_file():
         return dict(DEFAULT_CONFIG)
-    data = yaml.safe_load(Path(found).read_text(encoding="utf-8")) or {}
+    data = yaml.safe_load(SystemPath(found).read_text(encoding="utf-8")) or {}
     if not isinstance(data, dict):
         raise ValueError(f"{found} must contain a YAML mapping at the top level")
     return data
 
 
-def save_config(data: dict, path: str | Path) -> Path:
+def save_config(data: dict, path: path_like) -> SystemPath:
     """Write ``data`` back to ``path`` as tidy YAML."""
     dest = as_path(path)
     dest.write_text(

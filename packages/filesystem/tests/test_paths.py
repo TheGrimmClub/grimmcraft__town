@@ -18,16 +18,3 @@ def test_ensure_dir_creates_nested(tmp_path: Path):
     result = paths.ensure_dir(target)
     assert result.is_dir()
     assert result == target
-
-
-def test_locate_world_when_root_is_world(tmp_world: Path):
-    assert paths.locate_world(tmp_world) == tmp_world
-
-
-def test_locate_world_when_nested(tmp_path: Path, tmp_world: Path):
-    # tmp_world lives at tmp_path/world; searching from tmp_path should find it
-    assert paths.locate_world(tmp_world.parent) == tmp_world
-
-
-def test_locate_world_missing(tmp_path: Path):
-    assert paths.locate_world(tmp_path / "nope") is None

@@ -1,0 +1,10 @@
+version: "3"
+
+env:
+  PYTHONPATH: packages/filesystem/src:apps/alchemist/src
+
+tasks:
+  hello:
+    desc: "Say hello (starter command — replace me)"
+    cmds:
+      - uv run alchemist hello {{.CLI_ARGS}}

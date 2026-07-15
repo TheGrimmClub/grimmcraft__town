@@ -6,8 +6,9 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from filesystem import paths, region
-from filesystem.world import WorldInfo, read_world_info
+from filesystem import paths
+from minecraft import region
+from minecraft.world import WorldInfo, read_world_info
 
 
 @dataclass
@@ -57,7 +58,7 @@ def _custom_name(raw) -> str | None:
 
 def scan_world(world_dir: str | Path) -> WorldScan:
     """Read level.dat + every region file in a single pass."""
-    world = paths.locate_world(world_dir)
+    world = paths.locate_directory(world_dir)
     if world is None:
         raise FileNotFoundError(f"No Minecraft world (level.dat) found under {world_dir}")
 

@@ -12,7 +12,7 @@ import sys
 
 from filesystem import paths
 from filesystem.config import load_config
-from filesystem.world import discover_datapacks
+from minecraft.world import discover_datapacks
 
 from . import core
 
@@ -56,7 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _resolve_world(where: str):
-    world = paths.locate_world(where)
+    world = paths.locate_directory(where)
     if world is None:
         raise SystemExit(f"{NAME}: no world (level.dat) found under {where}")
     return world
