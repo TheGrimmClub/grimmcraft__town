@@ -18,9 +18,73 @@ from nicegui import ui
 from filesystem.config import CONFIG_NAME, load_config, save_config
 
 from .tasks import TaskButton, find_repo_root, group_tasks, list_tasks
+from typing import Any
 
 ROOT = find_repo_root()
 CONFIG_PATH = ROOT / CONFIG_NAME
+
+
+class Terminal:
+    """A small, colorful log panel with a Clear button.
+
+    NiceGUI's ``ui.log`` paints every line the same color; this keeps the black,
+    monospaced terminal feel but colors each line by *kind* (prompt, output,
+    warning, error, exit status) and lets the user wipe it with one click.
+    """
+
+    palette: dict[str,str] = {
+        "prompt": "text-cyan-300",
+        "info": "text-slate-200",
+        "good": "text-green-400",
+        "warn": "text-amber-300",
+        "error": "text-red-400",
+    }
+
+    def __init__(self, max_lines: int = 500) -> None:
+        self._max_lines: int = max_lines
+        self._lines: list[ui.label] = []
+
+        config: dict[str,Any] = load_config(CONFIG_PATH if CONFIG_PATH.is_file() else None).get("town", {}) or {}
+        terminal_config = config.get("terminal", {})
+        if terminal_config:
+            self.palette = terminal_config
+        else:
+            pass # use the already set
+
+
+        with ui.card().classes("w-full p-0 gap-0 overflow-hidden bg-black"):
+            with ui.row().classes("w-full items-center justify-between px-3 py-1 bg-gray-900"):
+                ui.label("Terminal").classes("text-xs font-mono text-gray-400")
+                ui.button("Clear", icon="delete_sweep", on_click=self.clear) \
+                    .props("flat dense no-caps color=grey-5")
+            self._scroll: ui.scroll_area = ui.scroll_area().classes("w-full h-64 bg-black px-3 py-2")
+            with self._scroll:
+                self._body: ui.column = ui.column().classes("gap-0 font-mono text-xs")
+
+    def push(self, text: str, kind: str = "info") -> None:
+        colour = self.palette.get(kind, self.palette["info"])
+        with self._body:
+            label = ui.label(text).classes(f"{colour} whitespace-pre-wrap leading-snug")
+        self._lines.append(label)
+        while len(self._lines) > self._max_lines:
+            self._body.remove(self._lines.pop(0))
+        self._scroll.scroll_to(percent=1.0)
+
+    def clear(self) -> None:
+        self._body.clear()
+        self._lines.clear()
+
+
+def _classify(line: str) -> str:
+    """Pick a colour *kind* for a line of streamed task output."""
+    low = line.lower()
+    if any(w in low for w in ("error", "traceback", "exception", "failed", "fatal")):
+        return "error"
+    if any(w in low for w in ("warning", "deprecat")):
+        return "warn"
+    if low.startswith("task:") or line.startswith("["):
+        return "warn"
+    return "info"
 
 
 def _run_ui() -> None:
@@ -32,7 +96,7 @@ def _run_ui() -> None:
     links: dict[str,str] = config.get("links", {})
 
     # keep tool tabs first and in a friendly order
-    order = ["guard", "scout", "blacksmith", "alchemist", "carpenter" "town"]
+    order = ["guard", "scout", "blacksmith", "alchemist", "carpenter", "town"]
     tool_names = sorted(groups, key=lambda g: (order.index(g) if g in order else 99, g))
 
     complex_editors: list[tuple[dict, str, "ui.textarea"]] = []
@@ -57,11 +121,11 @@ def _run_ui() -> None:
 
 
 
-    # Shared log, shown under the tabs.
-    log = ui.log(max_lines=500).classes("w-full h-64 bg-black text-green-400 font-mono text-xs")
+    # Shared colourful terminal, shown under the tabs.
+    terminal = Terminal()
 
     async def run_task(name: str) -> None:
-        log.push(f"$ task {name}")
+        terminal.push(f"$ task {name}", "prompt")
         proc = await asyncio.create_subprocess_exec(
             "task", name,
             cwd=str(ROOT),
@@ -70,12 +134,14 @@ def _run_ui() -> None:
         )
         assert proc.stdout is not None
         async for raw in proc.stdout:
-            log.push(raw.decode(errors="replace").rstrip())
+            line = raw.decode(errors="replace").rstrip()
+            terminal.push(line, _classify(line))
         await proc.wait()
-        log.push(f"[exit {proc.returncode}]")
-        (ui.notify if proc.returncode == 0 else ui.notify)(
+        ok = proc.returncode == 0
+        terminal.push(f"[exit {proc.returncode}]", "good" if ok else "error")
+        ui.notify(
             f"task {name} finished ({proc.returncode})",
-            type="positive" if proc.returncode == 0 else "negative",
+            type="positive" if ok else "negative",
         )
 
     def save() -> None:

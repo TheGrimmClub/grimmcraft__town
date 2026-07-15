@@ -38,3 +38,19 @@ guard = { workspace = true }
 scout = { workspace = true }
 blacksmith = { workspace = true }
 town = { workspace = true }
+
+[tool.pyright]
+# The workspace packages are installed *editable*, but uv marks its editable
+# `.pth` files hidden on macOS and uses an import-based finder Pyright can't
+# execute — so the language server can't follow them. Point it straight at each
+# package's `src`, mirroring the runtime PYTHONPATH, so imports like
+# `filesystem.config` resolve in the editor.
+extraPaths = [
+    "packages/filesystem/src",
+    "packages/minecraft/src",
+    "apps/guard/src",
+    "apps/scout/src",
+    "apps/blacksmith/src",
+    "apps/town/src",
+    "apps/alchemist/src",
+]

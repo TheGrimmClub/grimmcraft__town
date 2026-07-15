@@ -25,6 +25,12 @@ town:
     Grimmoire: https://thegrimmclub.github.io/grimmoire/
     Aternos Coding: https://aternos.org/worlds/
     NiceGUI: https://nicegui.io/documentation
+  terminal:
+    prompt: "text-cyan-300"
+    info: "text-slate-200"
+    good: "text-green-400"
+    warn: "text-amber-300"
+    error: "text-red-400"
 townhall: {}
 alchemist: {}
 carpenter: {}
