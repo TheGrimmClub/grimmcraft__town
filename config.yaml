@@ -18,7 +18,13 @@ scout: {}
 blacksmith: {}
 town:
   host: 127.0.0.1
-  port: 8081.0
+  port: 8081
+  title: ⚒  GrimCraft
+  links:
+    GrimmCraft Town on GitHub: https://github.com/TheGrimmClub/grimmcraft__town
+    Grimmoire: https://thegrimmclub.github.io/grimmoire/
+    Aternos Coding: https://aternos.org/worlds/
+    NiceGUI: https://nicegui.io/documentation
 townhall: {}
 alchemist: {}
 carpenter: {}

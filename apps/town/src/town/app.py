@@ -27,8 +27,12 @@ def _run_ui() -> None:
     state: dict = load_config(CONFIG_PATH if CONFIG_PATH.is_file() else None)
     buttons = list_tasks(ROOT)
     groups = group_tasks(buttons)
+    config = load_config(CONFIG_PATH if CONFIG_PATH.is_file() else None).get("town", {}) or {}
+    title: str = str(config.get("title", "GrimmCraft"))
+    links: dict[str,str] = config.get("links", {})
+
     # keep tool tabs first and in a friendly order
-    order = ["guard", "scout", "blacksmith", "townhall", "general"]
+    order = ["guard", "scout", "blacksmith", "alchemist", "carpenter" "town"]
     tool_names = sorted(groups, key=lambda g: (order.index(g) if g in order else 99, g))
 
     complex_editors: list[tuple[dict, str, "ui.textarea"]] = []
@@ -36,20 +40,20 @@ def _run_ui() -> None:
     ui.colors(primary="#5b7c99")
     with ui.header().classes("items-center justify-between"):
         with ui.column():
-            ui.label("⚒  GrimCraft · Town").classes("text-xl font-bold")
+            ui.label(title).classes("text-xl font-bold")
             with ui.row():
                 with ui.card():
                     # open the folder
-                    ui.link(str(ROOT), str(ROOT)).classes("text-l")
+                    ui.link(str(ROOT), f'file://{str(ROOT)}', new_tab=True).classes("text-l")
 
-                with ui.card():
-                    ui.link('GrimmCraft Town on GitHub', 'https://github.com/TheGrimmClub/grimmcraft__town', new_tab=True)
-                with ui.card():
-                    ui.link('Grimmoire', 'https://thegrimmclub.github.io/grimmoire/', new_tab=True)
-                with ui.card():
-                        ui.link('Aternos Coding', 'https://aternos.org/worlds/', new_tab=True)
-                with ui.card():
-                        ui.link('NiceGUI', 'https://nicegui.io/documentation', new_tab=True)
+                for title, link in links.items():
+                    with ui.card():
+                        ui.link(title, link, new_tab=True)
+
+                #ui.link('GrimmCraft Town on GitHub', 'https://github.com/TheGrimmClub/grimmcraft__town', new_tab=True)
+                #ui.link('Grimmoire', 'https://thegrimmclub.github.io/grimmoire/', new_tab=True)
+                #ui.link('Aternos Coding', 'https://aternos.org/worlds/', new_tab=True)
+                #ui.link('NiceGUI', 'https://nicegui.io/documentation', new_tab=True)
 
 
 
@@ -137,11 +141,11 @@ def _index() -> None:
 
 
 def main() -> None:
-    cfg = load_config(CONFIG_PATH if CONFIG_PATH.is_file() else None).get("town", {}) or {}
+    config = load_config(CONFIG_PATH if CONFIG_PATH.is_file() else None).get("town", {}) or {}
     ui.run(
-        host=cfg.get("host", "127.0.0.1"),
-        port=int(cfg.get("port", 8080)),
-        title="GrimmCraft · Town",
+        host=config.get("host", "127.0.0.1"),
+        port=int(config.get("port", 8080)),
+        title=str(config.get("title", "GrimmCraft")),
         reload=False,
         show=True,
     )
