@@ -20,7 +20,7 @@ def test_read_world_info(sample_world: Path):
 
 def test_datapack_description_and_enabled(sample_world: Path):
     packs = {p.name: p for p in discover_datapacks(sample_world)}
-    assert packs["falron"].description == "Falroen the Eye of the Storm"
+    assert packs["falron"].description == "Falron the Eye of the Storm"
     # with no explicit enabled-set, packs default to enabled
     assert packs["falron"].enabled is True
 
