@@ -193,8 +193,9 @@ def _run_ui() -> None:
                                 on_click=lambda b=button: run_task(b.name),
                             ).props("no-caps").tooltip(button.desc or button.name)
 
-                with ui.card().classes("w-full"):
-                    ui.label("Settings").classes("text-lg font-semibold")
+                with ui.expansion("Settings", icon="settings", value=False) \
+                        .classes("w-full border rounded") \
+                        .props('header-class="text-lg font-semibold"'):
                     render_config_editors(section)
                     ui.button("Save", on_click=save, icon="save").props("outline")
 
