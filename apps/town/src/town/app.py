@@ -39,18 +39,18 @@ def _run_ui() -> None:
 
     complex_editors: list[tuple[dict, str, "ui.textarea"]] = []
 
-    ui.colors(primary="#5b7c99")
+    _ = ui.colors(primary="#5b7c99")
     with ui.header().classes("items-center justify-between"):
         with ui.column():
-            ui.label(title).classes("text-xl font-bold")
+            _ = ui.label(title).classes("text-xl font-bold")
             with ui.row():
                 with ui.card():
                     # open the folder
-                    ui.link(str(ROOT), f'file://{str(ROOT)}', new_tab=True).classes("text-l")
+                    _ = ui.link(str(ROOT), f'file://{str(ROOT)}', new_tab=True).classes("text-l")
 
-                for title, link in links.items():
+                for title, link in links.items():  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
                     with ui.card():
-                        ui.link(title, link, new_tab=True)
+                        _ = ui.link(title, link, new_tab=True)
 
                 #ui.link('GrimmCraft Town on GitHub', 'https://github.com/TheGrimmClub/grimmcraft__town', new_tab=True)
                 #ui.link('Grimmoire', 'https://thegrimmclub.github.io/grimmoire/', new_tab=True)

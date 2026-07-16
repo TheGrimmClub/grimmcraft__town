@@ -1,0 +1,12 @@
+version: "3"
+
+vars:
+  DATAPACKS_DIR: /Users/felix/Desktop/42/3_Resources/@play/minecraft/_2026/1.21.11_mit_Silas/saves/Coding/datapacks
+
+tasks:
+  install:
+    desc: copy to coding
+    cmds:
+      - rm -rf "{{.DATAPACKS_DIR}}/falron"
+      - cp -r ./falron "{{.DATAPACKS_DIR}}"
+      - ls "{{.DATAPACKS_DIR}}/falron"

@@ -35,8 +35,8 @@ tasks:
     cmds:
       - uv run guard docs {{.CLI_ARGS}}
 
-  aternos:
-      internal: yes
-      desc: "get aternos files form the agecraftcoding server. Uses `~/.env` to login"
-      cmds:
-          - uv run --python 3.11 src/guard/aternos.py
+#  aternos:
+#      internal: yes
+#      desc: "get aternos files form the agecraftcoding server. Uses `~/.env` to login"
+#      cmds:
+#          - uv run --python 3.11 src/guard/aternos.py

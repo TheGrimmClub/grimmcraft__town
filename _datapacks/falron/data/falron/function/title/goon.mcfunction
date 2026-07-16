@@ -1,0 +1,1 @@
+title @a title [{"bold":true,"color":"dark_gray","obfuscated":true,"text":"## "},{"bold":true,"color":"aqua","obfuscated":false,"shadow_color":-15957382,"text":"Falron Eye of the Storm "},{"color":"dark_gray","obfuscated":true,"text":"##"}]
