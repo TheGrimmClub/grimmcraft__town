@@ -57,7 +57,7 @@ def render_markdown(scan: WorldScan, *, max_commands: int | None = 200) -> str:
     lines += ["| Dimension | Coords | Auto | Command |", "| --- | --- | :---: | --- |"]
     for cb in shown:
         command = cb.command.replace("|", "\\|") or "—"
-        lines.append(f"| {cb.dimension} | `{cb.coords}` | {'⚡' if cb.auto else ''} | `{command}` |")
+        lines.append(f"| {cb.dimension} | `{cb.block_info()}` | `{cb.conditional_info()}` | `{cb.is_always_active()}` | `{cb.coords}`, {cb.coords_info()} | {'⚡' if cb.auto else ''} | `{command}` |")
     if max_commands is not None and len(blocks) > max_commands:
         lines.append("")
         lines.append(f"_… and {len(blocks) - max_commands} more (raise --max to see them)._")

@@ -21,13 +21,45 @@ class CommandBlock:
     z: int
     command: str
     name: str | None = None
+    block: str | None = None
+    conditional: bool = False
     auto: bool = False           # "Always Active" (no redstone needed)
     track_output: bool = True
+
+    def block_info(self) -> str:
+        match self.block:
+            case 'minecraft:command_block':
+                return "impulse"
+            case 'minecraft:chain_command_block':
+                return "chain"
+            case 'minecraft:repeating_command_block':
+                return "repeat"
+            case _:
+                return f"{self.block}"
+        
+    
+    def conditional_info(self) -> str:
+        match self.conditional:
+            case True:
+                return "conditional"
+            case False:
+                return "not conditional"
+
+    def is_always_active(self) -> str:
+        match self.auto:
+            case True:
+                return "always active"
+            case False:
+                return "needs redstone"
+    
+
 
     @property
     def coords(self) -> str:
         return f"{self.x} {self.y} {self.z}"
-
+    
+    def coords_info(self) -> str:
+        return f"x={self.x},y={self.y},z={self.z}"
 
 @dataclass
 class WorldScan:
@@ -65,22 +97,35 @@ def scan_world(world_dir: str | Path) -> WorldScan:
     scan = WorldScan(world=world, info=read_world_info(world))
     counts: Counter[str] = Counter()
 
-    for dimension, entity in region.iter_block_entities(world):
-        block_id = str(entity.get("id", "unknown"))
-        counts[block_id] += 1
-        if _is_command_block(block_id):
-            scan.command_blocks.append(
-                CommandBlock(
-                    dimension=dimension,
-                    x=int(entity.get("x", 0)),
-                    y=int(entity.get("y", 0)),
-                    z=int(entity.get("z", 0)),
-                    command=str(entity.get("Command", "")),
-                    name=_custom_name(entity.get("CustomName")),
-                    auto=bool(entity.get("auto", 0)),
-                    track_output=bool(entity.get("TrackOutput", 1)),
+    # Walk chunk by chunk (not the flat block-entity stream): the command
+    # block's *conditional* flag and exact block id live in the chunk's
+    # block-state palette, so we need the chunk at hand to look them up.
+    for dimension, path in region.iter_region_files(world):
+        for chunk in region.iter_region_chunks(path):
+            for entity in region.chunk_block_entities(chunk):
+                block_id = str(entity.get("id", "unknown"))
+                counts[block_id] += 1
+                if not _is_command_block(block_id):
+                    continue
+                x = int(entity.get("x", 0))
+                y = int(entity.get("y", 0))
+                z = int(entity.get("z", 0))
+                state = region.chunk_block_state(chunk, x, y, z) or {}
+                properties = state.get("Properties") or {}
+                scan.command_blocks.append(
+                    CommandBlock(
+                        dimension=dimension,
+                        x=x,
+                        y=y,
+                        z=z,
+                        command=str(entity.get("Command", "")),
+                        name=_custom_name(entity.get("CustomName")),
+                        block=str(state.get("Name", block_id)),
+                        conditional=properties.get("conditional") == "true",
+                        auto=bool(entity.get("auto", 0)),
+                        track_output=bool(entity.get("TrackOutput", 1)),
+                    )
                 )
-            )
 
     scan.block_entity_counts = dict(counts.most_common())
     return scan

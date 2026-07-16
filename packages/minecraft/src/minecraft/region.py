@@ -71,6 +71,39 @@ def chunk_block_entities(chunk: dict) -> list[dict]:
     return level.get("TileEntities") or []
 
 
+def chunk_block_state(chunk: dict, x: int, y: int, z: int) -> dict | None:
+    """Return the block-state palette entry at absolute world coords.
+
+    The result looks like ``{"Name": "minecraft:chain_command_block",
+    "Properties": {"conditional": "true", "facing": "east"}}`` — Properties
+    may be absent. Only the 1.18+ chunk layout (``sections``) is supported;
+    older chunks return None.
+
+    Block states live in 16x16x16 *sections*: each section has a ``palette``
+    of distinct states and a ``data`` long-array of bit-packed palette
+    indices (1.16+ packing: indices never span two longs).
+    """
+    for section in chunk.get("sections") or []:
+        if section.get("Y") != y >> 4:
+            continue
+        states = section.get("block_states") or {}
+        palette = states.get("palette") or []
+        if not palette:
+            return None
+        data = states.get("data")
+        if len(palette) == 1 or not data:
+            return palette[0]  # the whole section is a single block state
+        bits = max(4, (len(palette) - 1).bit_length())
+        per_long = 64 // bits
+        index = (y & 15) * 256 + (z & 15) * 16 + (x & 15)
+        if index // per_long >= len(data):
+            return None
+        packed = data[index // per_long] & 0xFFFFFFFFFFFFFFFF  # signed long -> unsigned
+        entry = (packed >> ((index % per_long) * bits)) & ((1 << bits) - 1)
+        return palette[entry] if entry < len(palette) else None
+    return None
+
+
 def iter_region_files(world_dir: str | Path) -> Iterator[tuple[str, Path]]:
     """Yield ``(dimension_name, path)`` for every region file in a world."""
     world = as_path(world_dir)
